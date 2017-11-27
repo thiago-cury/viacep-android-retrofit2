@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<CEP> arrayCEPs;
 
+    //Tag para o LOG
+    private static final String TAG = "logCEP";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                             if (!response.isSuccessful()) {
                                 Toast.makeText(
                                         getApplicationContext(),
-                                        "CEP inválido",
+                                        getResources().getString(R.string.toast_erro_cep),
                                         Toast.LENGTH_LONG).show();
                             } else {
                                 CEP cep = response.body();
@@ -85,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
                                 //Retorno na Toast
                                 Toast.makeText(
                                         getApplicationContext(),
-                                        "Retorno: "+cep.toString(),
+                                        getResources().getString(R.string.toast_aviso_retorno)+cep.toString(),
                                         Toast.LENGTH_LONG).show();
 
                                 //Retorno no Log
-                                Log.d("tag", cep.toString());
+                                Log.d(TAG, cep.toString());
                             }
                             progressBar.setVisibility(View.INVISIBLE);
                         }
@@ -98,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onFailure(Call<CEP> call, Throwable t) {
                             Toast.makeText(
                                     getApplicationContext(),
-                                    "Algum erro ocorreu: " + t.getMessage(),
+                                    getResources().getString(R.string.toast_erro_generico) + t.getMessage(),
                                     Toast.LENGTH_LONG).show();
                         }
                     });
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
                     progressBar.setVisibility(View.VISIBLE);
 
-                    Call<List<CEP>> callCEPByCidadeEstadoEndereco = service.getEnderecoByCidadeEstadoEndereco(spUFs.getSelectedItem().toString(), etCidade.getText().toString(), etRua.getText().toString());
+                    Call<List<CEP>> callCEPByCidadeEstadoEndereco = service.getCEPByCidadeEstadoEndereco(spUFs.getSelectedItem().toString(), etCidade.getText().toString(), etRua.getText().toString());
 
                     callCEPByCidadeEstadoEndereco.enqueue(new Callback<List<CEP>>() {
                         @Override
@@ -124,12 +128,12 @@ public class MainActivity extends AppCompatActivity {
                             if (!response.isSuccessful()) {
                                 Toast.makeText(
                                         getApplicationContext(),
-                                        "Dado(s) inválido(s)",
+                                        getResources().getString(R.string.toast_erro_dados_invalidos),
                                         Toast.LENGTH_LONG).show();
                             } else {
                                 List<CEP> CEPAux = response.body();
 
-                                Log.d("tag", CEPAux.toString());
+                                Log.d(TAG, CEPAux.toString());
 
                                 arrayCEPs = new ArrayList<>();
 
@@ -140,12 +144,12 @@ public class MainActivity extends AppCompatActivity {
                                 //Retorno na Toast
                                 Toast.makeText(
                                         getApplicationContext(),
-                                        "Retorno: "+arrayCEPs.toString(),
+                                        getResources().getString(R.string.toast_aviso_retorno)+arrayCEPs.toString(),
                                         Toast.LENGTH_LONG).show();
 
 
                                 //Retorno no Log
-                                Log.d("tag", arrayCEPs.toString());
+                                Log.d(TAG, arrayCEPs.toString());
                             }
                             progressBar.setVisibility(View.INVISIBLE);
                         }
@@ -154,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onFailure(Call<List<CEP>> call, Throwable t) {
                             Toast.makeText(
                                     getApplicationContext(),
-                                    "Algum erro ocorreu: " + t.getMessage(),
+                                    getResources().getString(R.string.toast_erro_generico) + t.getMessage(),
                                     Toast.LENGTH_LONG).show();
                         }
                     });

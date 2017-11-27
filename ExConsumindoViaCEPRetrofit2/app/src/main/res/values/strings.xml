@@ -7,6 +7,12 @@
     <string name="et_cidade">Digite a Cidade</string>
     <string name="btn_buscar_por_rua_cidade_estado">Buscar por Rua Cidade e Estado</string>
 
+    <!-- Avisos/Erros Toast -->
+    <string name="toast_erro_cep">CEP inválido</string>
+    <string name="toast_erro_generico">Algum erro ocorreu</string>
+    <string name="toast_erro_dados_invalidos">Dados inválidos</string>
+    <string name="toast_aviso_retorno">Retorno</string>
+
     <string-array name="sp_ufs">
         <item>AC</item>
         <item>AL</item>

@@ -17,9 +17,9 @@ public interface APIRetrofitService {
 
     /* Retorna uma lista de objetos CEP */
     @GET("{estado}/{cidade}/{endereco}/json/")
-    Call<List<CEP>> getEnderecoByCidadeEstadoEndereco(@Path("estado") String estado,
-                                                      @Path("cidade") String cidade,
-                                                      @Path("endereco") String endereco);
+    Call<List<CEP>> getCEPByCidadeEstadoEndereco(@Path("estado") String estado,
+                                                 @Path("cidade") String cidade,
+                                                 @Path("endereco") String endereco);
 
     /* Retorna apenas um objeto CEP */
     @GET("{CEP}/json/")
