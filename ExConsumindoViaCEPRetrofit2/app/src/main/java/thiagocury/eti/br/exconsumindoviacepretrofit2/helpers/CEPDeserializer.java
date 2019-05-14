@@ -1,4 +1,4 @@
-package thiagocury.eti.br.exconsumindoviacepretrofit2;
+package thiagocury.eti.br.exconsumindoviacepretrofit2.helpers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -7,6 +7,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+
+import thiagocury.eti.br.exconsumindoviacepretrofit2.model.CEP;
 
 /**
  * Created by thiagocury on 21/11/17.

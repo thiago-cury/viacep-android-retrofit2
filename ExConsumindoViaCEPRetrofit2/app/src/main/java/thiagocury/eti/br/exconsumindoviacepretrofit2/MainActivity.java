@@ -1,5 +1,6 @@
 package thiagocury.eti.br.exconsumindoviacepretrofit2;
 
+import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,24 +22,27 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.helpers.CEPDeserializer;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.model.CEP;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.model.SimpleCallback;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.service.APIRetrofitService;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.service.CEPService;
 
 public class MainActivity extends AppCompatActivity {
 
     //Widgets
     private EditText etCEP;
-    private Button btnBuscarPorCEP;
-    private ProgressBar progressBar;
-
     private EditText etRua;
     private EditText etCidade;
     private Spinner spUFs;
+    private Button btnBuscarPorCEP;
     private Button btnBuscarPorRuaCidadeEstado;
+    private ProgressBar progressBar;
 
     private ArrayList<CEP> arrayCEPs;
 
     //Tag para o LOG
     private static final String TAG = "logCEP";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +58,8 @@ public class MainActivity extends AppCompatActivity {
         spUFs = findViewById(R.id.sp_ufs);
         btnBuscarPorRuaCidadeEstado = findViewById(R.id.btn_buscar_por_rua_cidade_estado);
 
+        progressBar.setVisibility(View.INVISIBLE);
 
-        Gson g = new GsonBuilder().registerTypeAdapter(CEP.class, new CEPDeserializer()).create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl(APIRetrofitService.BASE_URL)
-                                .addConverterFactory(GsonConverterFactory.create(g))
-                                .build();
-
-        final APIRetrofitService service = retrofit.create(APIRetrofitService.class);
-
-        /* Buscar por CEP */
         btnBuscarPorCEP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,40 +67,30 @@ public class MainActivity extends AppCompatActivity {
                 if(!etCEP.getText().toString().isEmpty()) {
 
                     progressBar.setVisibility(View.VISIBLE);
+                    CEPService service = new CEPService(MainActivity.this);
 
-                    Call<CEP> callCEPByCEP = service.getEnderecoByCEP(etCEP.getText().toString());
+                    service.getCEP(etCEP.getText().toString(), new SimpleCallback<CEP>() {
 
-                    callCEPByCEP.enqueue(new Callback<CEP>() {
                         @Override
-                        public void onResponse(Call<CEP> call, Response<CEP> response) {
-                            if (!response.isSuccessful()) {
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getResources().getString(R.string.toast_erro_cep),
-                                        Toast.LENGTH_LONG).show();
-                            } else {
-                                CEP cep = response.body();
+                        public void onResponse(CEP response) {
+                            CEP cep = response;
 
-                                //Retorno na Toast
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getResources().getString(R.string.toast_aviso_retorno)+cep.toString(),
-                                        Toast.LENGTH_LONG).show();
-
-                                //Retorno no Log
-                                Log.d(TAG, cep.toString());
-                            }
+                            //Retorno na Toast
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    getResources().getString(R.string.toast_aviso_retorno)+cep.toString(),
+                                    Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.INVISIBLE);
                         }
 
                         @Override
-                        public void onFailure(Call<CEP> call, Throwable t) {
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    getResources().getString(R.string.toast_erro_generico) + t.getMessage(),
-                                    Toast.LENGTH_LONG).show();
+                        public void onError(String error) {
+                            toast("erro onError: "+error.toString());
+                            progressBar.setVisibility(View.INVISIBLE);
                         }
                     });
+                } else {
+                    toast("CEP vazio!");
                 }
             }
         });
@@ -116,54 +101,42 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(!etCidade.getText().toString().isEmpty() &&
-                   !etRua.getText().toString().isEmpty()) {
+                        !etRua.getText().toString().isEmpty() &&
+                                spUFs.getSelectedItemPosition()!=0) {
 
                     progressBar.setVisibility(View.VISIBLE);
 
-                    Call<List<CEP>> callCEPByCidadeEstadoEndereco = service.getCEPByCidadeEstadoEndereco(spUFs.getSelectedItem().toString(), etCidade.getText().toString(), etRua.getText().toString());
+                    CEPService service = new CEPService(MainActivity.this);
 
-                    callCEPByCidadeEstadoEndereco.enqueue(new Callback<List<CEP>>() {
-                        @Override
-                        public void onResponse(Call<List<CEP>> call, Response<List<CEP>> response) {
-                            if (!response.isSuccessful()) {
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getResources().getString(R.string.toast_erro_dados_invalidos),
-                                        Toast.LENGTH_LONG).show();
-                            } else {
-                                List<CEP> CEPAux = response.body();
+                    service.getCEPUFCidadeRua(spUFs.getSelectedItem().toString(),
+                        etCidade.getText().toString(),
+                        etRua.getText().toString(), new SimpleCallback<List<CEP>>() {
+                            @Override
+                            public void onResponse(List<CEP> response) {
 
-                                Log.d(TAG, CEPAux.toString());
-
+                                List<CEP> CEPAux = response;
                                 arrayCEPs = new ArrayList<>();
 
                                 for (CEP cep : CEPAux) {
                                     arrayCEPs.add(cep);
                                 }
 
-                                //Retorno na Toast
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getResources().getString(R.string.toast_aviso_retorno)+arrayCEPs.toString(),
-                                        Toast.LENGTH_LONG).show();
-
-
-                                //Retorno no Log
-                                Log.d(TAG, arrayCEPs.toString());
+                                toast(getResources().getString(R.string.toast_aviso_retorno)+arrayCEPs.toString());
+                                progressBar.setVisibility(View.INVISIBLE);
                             }
-                            progressBar.setVisibility(View.INVISIBLE);
-                        }
 
-                        @Override
-                        public void onFailure(Call<List<CEP>> call, Throwable t) {
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    getResources().getString(R.string.toast_erro_generico) + t.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                            @Override
+                            public void onError(String error) {
+                                toast(getResources().getString(R.string.toast_erro_generico)+error);
+                                progressBar.setVisibility(View.INVISIBLE);
+                            }
+                        });
                 }
             }
         });
+    }//oncreate
+
+    private void toast(String msg){
+        Toast.makeText(getBaseContext(),msg,Toast.LENGTH_LONG).show();
     }
-}
+}//classe

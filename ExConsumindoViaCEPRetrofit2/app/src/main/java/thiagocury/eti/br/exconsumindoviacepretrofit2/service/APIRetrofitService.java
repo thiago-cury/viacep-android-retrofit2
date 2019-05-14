@@ -1,11 +1,11 @@
-package thiagocury.eti.br.exconsumindoviacepretrofit2;
+package thiagocury.eti.br.exconsumindoviacepretrofit2.service;
 
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
+import thiagocury.eti.br.exconsumindoviacepretrofit2.model.CEP;
 
 /**
  * Created by thiagocury on 21/11/17.
